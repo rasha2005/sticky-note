@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        body{
+            background-color: black;
+        }
+        .note {
+    width: 250px;
+    height: 200px;
+    padding: 10px;
+   
+    border: 1px solid #ccc;
+    margin-bottom: 20px; /* Added margin-bottom */
+    margin-right: 20px; /* Added margin-right for space between cards */
+    resize: vertical;
+    overflow: auto;
+    background-color: yellow;
+    text-decoration: none;
+    box-shadow: none;
+    outline: none;
+}
+
+.container{
+    margin-left: 40px;
+}
+        
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .delete-icon {
+    cursor: pointer;
+    color: red; /* Change color as needed */
+    }
+
+    #addStickyNotes{
+        background-color: rgb(32, 34, 36);
+        width: 250px;
+        height: 220px;
+        margin-right: 30px;
+        overflow: auto;
+        display: inline-block; /* Treat the button as an inline-block element */
+    vertical-align: top;
+    border: 0;
+    border-radius: 2px;
+    font-size: 40px;
+        
+    }
+   
+    .flex-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap; /* This will wrap the elements to the next line if there's not enough space */
+}
+h6{
+    color: aqua;
+    font-size: 30px;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+textarea{
+    background-color: yellow;
+    text-decoration: none;
+    box-shadow: none;
+    border: 0;
+    border-radius: 2px;
+
+}
+    </style>
+</head>
+<body>
+
+
+<div class="container">
+    <div class="flex-between">
+        <h6 >sticky notes</h6>
+    </div>
+
+</div>
+
+<div id="stickyNotesContainer">
+    <div class="flex-container">
+        <!-- Notes will be dynamically added here -->
+    </div>
+ <button id="addStickyNotes">+</button>
+</div>
+
+
+<script>
+    console.log("heyoo");
+
+    const stickyContainer = document.getElementById('stickyNotesContainer');
+    const addSticky = document.getElementById('addStickyNotes');
+
+    var storeData = {
+        id : 0,
+        note : []
+    }
+
+    function loadData() {
+         const data = localStorage.getItem("STOREDATA");
+         if(data) {
+            storeData = JSON.parse(data);
+            storeData.note.forEach(note => {
+            createStickyNotes(note.id, note.content, false); 
+        });
+         }
+    }
+
+    function uniqueId() {
+        randomString = Math.random().toString(36).substring(2,6);
+        dateNow = Date.now();
+
+        uniqueID = randomString+dateNow;
+        console.log('uniqueID',uniqueID)
+        return uniqueID
+        
+    }
+
+    function save() {
+        localStorage.setItem("STOREDATA",JSON.stringify(storeData) )
+    }
+
+    function createStickyNotes(id,content,stroge = true) {
+        const text = document.createElement('textarea');
+        text.setAttribute('spellcheck', 'false')
+        text.classList.add("note");
+        text.value = content;
+        text.id = id;
+        // text.placeholder = 'type here ... '
+        text.maxLength = 120;
+
+
+       
+
+    text.addEventListener('dblclick' , () => {
+            removeNote(id)
+        })
+
+        stickyContainer.appendChild(text);
+        
+        
+
+        text.addEventListener('input', () => {
+            console.log("jjj",text.value)
+            updateNote( id, text.value )
+        })
+
+        if(stroge) {
+            const object = {
+                id : id ,
+                content : content 
+            }
+
+          storeData.note.push(object);
+        }
+
+        save();
+
+    }
+
+    function removeNote(id) {
+        let index = storeData.note.findIndex(index => index.id == id);
+
+        if(index != -1) {
+            storeData.note.splice(index,1);
+        }
+        save();
+
+        let note = document.getElementById(id);
+        if(note) {
+            note.parentNode.removeChild(note);
+        }
+
+        
+        
+    }
+
+    function updateNote (id , content) {
+        let final = storeData.note.find(ele => ele.id === id );
+        final.content = content;
+        save();
+    }
+
+    addSticky.addEventListener('click' , () => createStickyNotes(uniqueId(),"") )
+
+    loadData();
+
+</script>
+</body>
+</html
